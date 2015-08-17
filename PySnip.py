@@ -76,5 +76,5 @@ def get(snip):
 if __name__ == "__main__":
     APP.debug = True
     KEY_SIZE = 32
-    APP.secret_key = open("/dev/random","rb").read(KEY_SIZE)
+    APP.secret_key = open("/dev/urandom","rb").read(KEY_SIZE)
     APP.run()
