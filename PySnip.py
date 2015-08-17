@@ -21,6 +21,12 @@ def pySet(s):
 def pyGet(s):
     return r.get(s)
 
+def pyIncr(key):
+    count = 'count'
+    pipe = r.pipeline()
+    pipe.incr(key + ":" + count)
+    pipe.execute()
+
 #FLASK
 from flask import Flask, render_template, request
 app = Flask(__name__)
@@ -45,7 +51,11 @@ def add():
 @app.route("/get/<id>")
 def get(id):
     res = pyGet(id)
-    return res if res else "Key not found"
+    if res:
+        pyIncr(id)
+        return res
+    else:
+        return "Key not found"
 
 if __name__ == "__main__":
     app.debug = True
