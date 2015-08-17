@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+#CORE
 import hashlib
 import redis
 
@@ -10,7 +11,23 @@ def pySet(s):
     if not (r.get(s)):
         r.set(snip, s)
     else:
-        print "Already have it"
+        return False
 
-pySet('https://stackoverflow.com/questions/742013/how-to-code-a-url-shortener')
+def pyGet(s):
+    return r.get(s)
 
+#FLASK
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/add")
+def add():
+    return pySet('https://stackoverflow.com/questions/742013/how-to-code-a-url-shortener')
+
+@app.route("/get/<id>")
+def get(id):
+    res = pyGet(id)
+    return res if res else "Key not found"
+
+if __name__ == "__main__":
+    app.run()
