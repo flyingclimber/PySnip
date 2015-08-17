@@ -3,8 +3,10 @@
 </head>
 <body>
 <form action="add" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   URL: <input type="text" name="url" size="100"><br>
   <input type="submit" value="Submit">
+</form>
 </form>
 </body>
 </html>

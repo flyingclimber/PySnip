@@ -35,8 +35,10 @@ def pyincr(snip):
     pipe.execute()
 
 #FLASK
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, abort
+from flask_wtf.csrf import CsrfProtect
 APP = Flask(__name__)
+CsrfProtect(APP)
 
 @APP.route("/addUrl")
 def addurl():
@@ -60,7 +62,10 @@ def add():
 
 @APP.route("/get/<snip>")
 def get(snip):
-    """Return the url for a given ID"""
+    """
+       Return the url for a given ID
+       per http://flask.pocoo.org/docs/0.10/security/ input should be autoescaped through Jinja2
+     """
     res = pyget(snip)
     if res:
         pyincr(snip)
@@ -70,4 +75,6 @@ def get(snip):
 
 if __name__ == "__main__":
     APP.debug = True
+    KEY_SIZE = 32
+    APP.secret_key = open("/dev/random","rb").read(KEY_SIZE)
     APP.run()
