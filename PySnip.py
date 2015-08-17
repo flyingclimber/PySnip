@@ -1,62 +1,73 @@
 #!/usr/bin/python
 
+'''
+PySnip - Flask based Url Shortner
+'''
+
 #CORE
-import hashlib
-import redis
+import hashlib, redis
 
-domain = '127.0.0.1'
-port = 5000
-proto = 'http'
+DOMAIN = '127.0.0.1'
+PORT = 5000
+PROTO = 'http'
 
-r = redis.StrictRedis(host='localhost', port=6379, db=0)
+R = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-def pySet(s):
-    snip = hashlib.md5(s).hexdigest()
-    if not (r.get(snip)):
-        r.set(snip, s)
+def pyset(url):
+    """Given a url record it in redis"""
+
+    snip = hashlib.md5(url).hexdigest()
+    if not (R.get(snip)):
+        R.set(snip, url)
         return snip
     else:
         return False
 
-def pyGet(s):
-    return r.get(s)
+def pyget(snip):
+    """Given a key return the url"""
+    return R.get(snip)
 
-def pyIncr(key):
+def pyincr(snip):
+    """Given a key increment the amount of times it's been accessed"""
     count = 'count'
-    pipe = r.pipeline()
-    pipe.incr(key + ":" + count)
+    pipe = R.pipeline()
+    pipe.incr(snip + ":" + count)
     pipe.execute()
 
 #FLASK
 from flask import Flask, render_template, request
-app = Flask(__name__)
+APP = Flask(__name__)
 
-@app.route("/addUrl")
-def addUrl():
+@APP.route("/addUrl")
+def addurl():
+    """Load the web page that allows you to do a url"""
     return render_template('addUrl.html')
 
-@app.route("/add", methods=['POST'])
+@APP.route("/add", methods=['POST'])
 def add():
+    """Add a new url to the DB"""
     if request.method == 'POST':
         url = request.form['url']
         if url:
-            key = pySet(url)
+            key = pyset(url)
             if key:
-                return render_template('view.html', key=key, url=url, domain=domain, port=port, proto=proto)
+                return render_template('view.html', key=key, url=url, \
+                                       domain=DOMAIN, port=PORT, proto=PROTO)
             else:
                 return "Duplicate"
         else:
             return "Invalid URL"
 
-@app.route("/get/<id>")
-def get(id):
-    res = pyGet(id)
+@APP.route("/get/<snip>")
+def get(snip):
+    """Return the url for a given ID"""
+    res = pyget(snip)
     if res:
-        pyIncr(id)
+        pyincr(snip)
         return res
     else:
         return "Key not found"
 
 if __name__ == "__main__":
-    app.debug = True
-    app.run()
+    APP.debug = True
+    APP.run()
