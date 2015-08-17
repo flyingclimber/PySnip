@@ -35,7 +35,7 @@ def pyincr(snip):
     pipe.execute()
 
 #FLASK
-from flask import Flask, render_template, request, session, abort
+from flask import Flask, render_template, request
 from flask_wtf.csrf import CsrfProtect
 APP = Flask(__name__)
 CsrfProtect(APP)
