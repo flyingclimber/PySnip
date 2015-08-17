@@ -1,0 +1,9 @@
+<!doctype html>
+<title>View</title>
+{% if key %}
+  <h3>
+    <a href="{{ url }}">{{ url }}</a> =>
+    <a href="{{proto}}://{{ domain }}:{{ port }}/get/{{ key }}">{{proto}}://{{ domain }}:{{ port }}/get/{{ key }}</a></h3>
+{% else %}
+  <h1>ERROR: Missing ID</h1>
+{% endif %}

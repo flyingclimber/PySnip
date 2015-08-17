@@ -4,15 +4,19 @@
 import hashlib
 import redis
 
+domain = '127.0.0.1'
+port = 5000
+proto = 'http'
+
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def pySet(s):
     snip = hashlib.md5(s).hexdigest()
     if not (r.get(snip)):
         r.set(snip, s)
-        return 'Added'
+        return snip
     else:
-        return 'Duplicate'
+        return False
 
 def pyGet(s):
     return r.get(s)
@@ -28,8 +32,13 @@ def addUrl():
 @app.route("/add", methods=['POST'])
 def add():
     if request.method == 'POST':
-        if request.form['url']:
-            return pySet(request.form['url'])
+        url = request.form['url']
+        if url:
+            key = pySet(url)
+            if key:
+                return render_template('view.html', key=key, url=url, domain=domain, port=port, proto=proto)
+            else:
+                return "Duplicate"
         else:
             return "Invalid URL"
 
