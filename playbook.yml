@@ -1,0 +1,42 @@
+---
+- hosts: pysnip
+  sudo: yes
+  tasks:
+    - name: Install and Start redis-server
+      apt: name=redis-server update_cache=yes
+      notify:
+        - start redis-server
+
+    - name: Check running redis-server
+      service: name=redis-server state=running
+
+    - name: Install python package manager
+      apt: name=python-pip
+
+    - name: Install GIT
+      apt: name=git
+
+    - name: Install redis-py
+      pip: name=redis
+
+    - name: Install flask
+      pip: name=flask
+
+    - name: Install Fask-WTF
+      pip: name=Flask-WTF
+
+    - name: Install gunicorn
+      pip: name=gunicorn
+
+    - name: Install netaddr
+      pip: name=netaddr
+
+    - name: Clone PySnip
+      git: repo=https://github.com/flyingclimber/PySnip.git
+            dest=PySnip
+
+    - name: Startup PySnip
+      command: gunicorn -D -w 4 -b {{ ansible_eth0.ipv4.address }}:4000 PySnip:APP
+      args:
+        chdir: PySnip
+
